@@ -1,0 +1,107 @@
+[project]
+name = "ephysworking"
+authors = [
+    {name = "Joe Ziminski", email = "j.ziminski@ucl.ac.uk"},
+]
+description = "Joe Ziminski general ephys scripts and utils."
+readme = "README.md"
+requires-python = ">=3.8.0"
+dynamic = ["version"]
+license = {text = "BSD-3-Clause"}
+
+dependencies = [
+    "spikeinterface",
+    "scipy",
+    "numba",
+    "probeinterface",
+    "scikit-learn"
+]
+
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: BSD License",
+]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/JoeZiminski/ephysworkingissues"
+"Source Code" = "https://github.com/JoeZiminski/ephysworking"
+
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "black",
+    "mypy",
+    "pre-commit",
+    "ruff",
+    "setuptools_scm",
+]
+
+[build-system]
+requires = [
+    "setuptools>=45",
+    "wheel",
+    "setuptools_scm[toml]>=6.2",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+exclude = [
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["ephysworking*"]
+exclude = []
+
+[tool.pytest.ini_options]
+addopts = "--cov=ephysworking"
+
+[tool.black]
+target-version = ['py38', 'py39', 'py310', 'py311']
+skip-string-normalization = false
+line-length = 79
+
+[tool.ruff]
+line-length = 79
+exclude = ["__init__.py","build",".eggs"]
+fix = true
+
+[tool.ruff.lint]
+ignore = ["E203","E501","E731","C901","W291","W293","E402","E722"]
+select = ["I", "E", "F", "TCH", "TID252"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 18
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.setuptools_scm]
+
+[tool.check-manifest]
+ignore = [
+  "*.yaml",
+  ".bumpversion.cfg",
+  "tox.ini",
+]
+
+
+[tool.codespell]
+skip = '.git,*.pdf,*.svg'
+#
+# ignore-words-list = ''
