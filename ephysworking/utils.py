@@ -17,10 +17,12 @@ def save_plot(
 
 
 def plot_list_of_recordings(
-    output_path, ses_name, recording_times, names_list, recording_list
+    output_path, ses_name, recording_times, names_list, recording_list, mode="map"
 ):
     """
     """
+    output_path.mkdir(exist_ok=True, parents=True)
+
     quarter_times = np.quantile(
         recording_times, (0, 0.25, 0.5, 0.75, 0.95)
     )  # not quite the end so bin doesn't go over edge
@@ -43,7 +45,7 @@ def plot_list_of_recordings(
                     order_channel_by_depth=False,
                     time_range=(start, start + bin),
                     ax=ax,
-                    mode="map",
+                    mode=mode,
                     show_channel_ids=True,
                 )
                 format_start = f"{start:0.2f}"

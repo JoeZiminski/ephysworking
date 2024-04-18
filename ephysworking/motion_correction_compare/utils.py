@@ -14,6 +14,7 @@ def gen_probe_group(probe_name="ASSY-236-P-1"):
     # probe1 = probe.copy()
     probe2 = probe1.copy()
     probe2.wiring_to_device("cambridgeneurotech_mini-amp-64")
+
     probe2.set_device_channel_indices(probe1.device_channel_indices + 64)
     if np.unique(probe1.shank_ids).shape[0] > 1:
         probe2.set_shank_ids((probe1.shank_ids.astype(int) + 4).astype(str))

@@ -1,3 +1,14 @@
+"""
+This is a quick script to visualise the output of bandpass filter
+and CMR on the recordings. Output will either save a list of
+images to the session folder (will be overwritten each
+time the script is run). Otherwise it will display in the
+current GUI.
+
+Pictures are output to
+/ceph/neuroinformatics/neuroinformatics/scratch/jziminski/ephys/dammy/deriatives/...
+"""
+
 from pathlib import Path
 import platform
 import matplotlib.pyplot as plt
@@ -6,43 +17,44 @@ import spikeinterface.extractors as si_extractors
 import spikeinterface.preprocessing as si_preprocessing
 import spikeinterface.widgets as si_widgets
 from spikeinterface.sorters import Kilosort2_5Sorter
-
+import probeinterface
 from ephysworking.motion_correction_compare.utils import gen_probe_group
 from ephysworking.utils import plot_list_of_recordings
 
+from probeinterface.plotting import plot_probe, plot_probe_group
 
 if platform.system() == "Windows":
     base_path = Path(r"X:\neuroinformatics\scratch\jziminski\ephys\dammy")
-    ks_path = Path(
-        r"X:\neuroinformatics\scratch\jziminski\git-repos\forks\Kilosort_2-5_nowhiten"
-    )
 else:
     base_path = Path(
         r"/ceph/neuroinformatics/neuroinformatics/scratch/jziminski/ephys/dammy"
     )
-    ks_path = Path(
-        "/ceph/neuroinformatics/neuroinformatics/scratch/jziminski/git-repos/forks/Kilosort_2-5_nowhiten"
-    )
 
-Kilosort2_5Sorter.set_kilosort2_5_path(ks_path.as_posix())
 
 # Set subject / session information
 sub = "DO79"
-ses = "240109_001"  # "240404_001" # "240109_001"
-probe_idx = 0
-shank_idx = 1
-save_plots = True
+ses = "240109_001"   # e.g. "240404_001" # "240109_001"
+probe_idx = 0        # 0 or 1
+shank_idx = 1        # (0-3 probe 1, 4-7 probe 2)
+save_plots = False   # save to folder is True, otherwise display now with matplotlib.
+show_probe_plot = False
+plot_mode = "map"    # "map" or "line"
 
 get_ses_path = lambda toplevel: base_path / toplevel / sub / ses
 
 
 # Load the raw data
-recording_path = list(get_ses_path("rawdata").glob("**/Record Node 101*"))
+recording_path = list(get_ses_path("rawdata").glob("**/Record Node 101/experiment*/recording*"))
 
 assert len(recording_path) == 1, f"{sub} {ses} has unexpected number of recordings."
 
 raw_rec_noprobe = si_extractors.read_openephys(recording_path[0].as_posix())
-probes = gen_probe_group()
+
+probes = gen_probe_group()  # vendored from Dammy's code
+
+if show_probe_plot and not save_plots:
+    plot_probe_group(probes, with_contact_id=True)  # with_contact_id with_device_index
+    plt.show()
 
 
 # Split the two probes
@@ -64,21 +76,27 @@ cmr_rec = si_preprocessing.common_reference(filtered_rec, operator="median")
 
 # Plot all outputs for visual comparison.
 if save_plots:
+    output_path = get_ses_path("derivatives") / ses / "images"
+    if output_path.is_dir():
+        output_path.rmdir()
+
     plot_list_of_recordings(
         get_ses_path("derivatives"),
         ses,
         raw_rec.get_times(),
         ["cmr"],
         [cmr_rec],
+        mode=plot_mode,
     )
 else:
-    start_time = 1
-    stop_time = 2
+    start_time = 250
+    stop_time = 250.2
+
     si_widgets.plot_traces(
         cmr_rec,
-        order_channel_by_depth=False,
+        order_channel_by_depth=True,
         time_range=(start_time, stop_time),
-        mode="map",
+        mode=plot_mode,
         show_channel_ids=True,
     )
     plt.show()
