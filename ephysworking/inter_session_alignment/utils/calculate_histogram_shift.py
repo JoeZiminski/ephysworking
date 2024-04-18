@@ -1,6 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from scipy import optimize
+import numpy as np
 
 # TODO: this is super slow brute force optimisation approach
 # but the histograms are so small it doesn't matter.
@@ -11,19 +10,25 @@ from scipy import optimize
 
 #  GENERAL UTILS
 
+
 def shift(trace, shift):
     # can just use np.roll... will still need to zero pad etc.
     TRACE = np.fft.fft(trace)
-    f = np.arange(TRACE.size) * (1/TRACE.size)
-    TRACE_SHIFT = np.exp(-1j*2*np.pi*f*shift) * TRACE
+    f = np.arange(TRACE.size) * (1 / TRACE.size)
+    TRACE_SHIFT = np.exp(-1j * 2 * np.pi * f * shift) * TRACE
     trace_shift = np.real(np.fft.ifft(TRACE_SHIFT))
     return trace_shift
 
 
 def loss(d2, *args):
-    t1, t2,  = args
+    (
+        t1,
+        t2,
+    ) = args
     t2_shift = shift(t2, d2)
-    return np.sum((t1-t2_shift)**2) # -np.dot(t1, t2_shift) # -np.correlate(t1, t2_shift)  # np.sum((t1-t2_shift)**2)
+    return np.sum(
+        (t1 - t2_shift) ** 2
+    )  # -np.dot(t1, t2_shift) # -np.correlate(t1, t2_shift)  # np.sum((t1-t2_shift)**2)
 
 
 def calculate_shift(hist_1, hist_2):
@@ -47,7 +52,7 @@ def calculate_shift(hist_1, hist_2):
     hist_2 = np.r_[np.zeros(N), hist_2, np.zeros(N)]
 
     # TODO: need to account for non-zero in section only and avg.
-    shift_range = int(N/2)
+    shift_range = int(N / 2)
     range_ = np.arange(-shift_range, shift_range)
     loss_ = [loss(d2, hist_1, hist_2) for d2 in range_]
     return range_[np.argmin(loss_)]
@@ -61,7 +66,7 @@ def plot_loss(hist_1, hist_2):
     hist_1 = np.r_[np.zeros(N), t1, np.zeros(N)]
     hist_2 = np.r_[np.zeros(N), t2, np.zeros(N)]
 
-    shift_range = int(hist_1.size/2)
+    shift_range = int(hist_1.size / 2)
     range_ = np.arange(-shift_range, shift_range)
 
     [plt.plot(shift(hist_2, d2)) for d2 in range_]
@@ -70,6 +75,7 @@ def plot_loss(hist_1, hist_2):
     loss_ = [loss(d2, hist_1, hist_2) for d2 in range_]
     plt.plot(range_, loss_)
     plt.show()
+
 
 if __name__ == "__main__":
 

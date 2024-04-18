@@ -1,19 +1,20 @@
-import spikeinterface as si
-import matplotlib.pyplot as plt
-from spikeinterface.sortingcomponents.peak_selection import select_peaks
-from spikeinterface.sortingcomponents.motion_estimation import estimate_motion
-from spikeinterface.sortingcomponents.motion_interpolation import interpolate_motion
+"""
 
-import numpy as np
+"""
 from pathlib import Path
-from spikeinterface.sortingcomponents import motion_estimation
+
 import histogram_generation
+import matplotlib.pyplot as plt
+import numpy as np
+import spikeinterface as si
 from spikeinterface import widgets
+from spikeinterface.sortingcomponents.motion_interpolation import (
+    interpolate_motion,
+)
 
 
 def save_motion_histograms(sub_path, ses):
-    """
-    """
+    """ """
     ses_path = sub_path / ses
     recording_path = ses_path / "preprocessing" / "si_recording"
     recording = si.load_extractor(recording_path)
@@ -22,9 +23,10 @@ def save_motion_histograms(sub_path, ses):
     recording_npy_path.mkdir(exist_ok=True, parents=True)
 
     # Make and save activity histograms
-    peaks, peak_locations, histogram, temporal_bins, spatial_bins = \
+    peaks, peak_locations, histogram, temporal_bins, spatial_bins = (
         histogram_generation.make_single_motion_histogram(
-        recording,
+            recording,
+        )
     )
 
     np.save(recording_npy_path / "peaks.npy", peaks)
@@ -44,15 +46,14 @@ def save_motion_histograms(sub_path, ses):
 
 
 def align_to_first_session(sub_path, first_session, second_session):
-    """
-    """
+    """ """
     # Set paths.
     pp_one_path = sub_path / first_session
     pp_two_path = sub_path / second_session
-    
+
     pp_one_npy_path = Path(pp_one_path) / "motion_npy_files"
     pp_two_npy_path = Path(pp_two_path) / "motion_npy_files"
-    
+
     # Load histogram information.
     pp_one_rec = si.load_extractor(pp_one_path / "preprocessing" / "si_recording")
     pp_two_rec = si.load_extractor(pp_two_path / "preprocessing" / "si_recording")
@@ -68,7 +69,8 @@ def align_to_first_session(sub_path, first_session, second_session):
 
     # Calculate shift from pp_two to pp_one
     scaled_shift, y_pos = histogram_generation.calculate_scaled_histogram_shift(
-        pp_one_rec, pp_two_rec, pp_one_histogram, pp_two_histogram)
+        pp_one_rec, pp_two_rec, pp_one_histogram, pp_two_histogram
+    )
 
     # Shift the second session
     # TODO: do not change the foldernames without changing in 'save_data_plots'
@@ -80,18 +82,25 @@ def align_to_first_session(sub_path, first_session, second_session):
 
     # TODO: double check sign convention
     # border_mode can be: remove_channels  force_zeros
-    shifted_pp_two_rec = interpolate_motion(recording=pp_two_rec,
-                                            motion=-pp_two_motion,
-                                            temporal_bins=pp_two_temporal_bins,
-                                            spatial_bins=pp_two_spatial_bins,
-                                            border_mode="force_zeros",
-                                            spatial_interpolation_method="kriging",
-                                            sigma_um=30.0)
+    shifted_pp_two_rec = interpolate_motion(
+        recording=pp_two_rec,
+        motion=-pp_two_motion,
+        temporal_bins=pp_two_temporal_bins,
+        spatial_bins=pp_two_spatial_bins,
+        border_mode="force_zeros",
+        spatial_interpolation_method="kriging",
+        sigma_um=30.0,
+    )
     shifted_pp_two_rec.save(folder=shifted_output_path)
 
     # Make motion histogram on the shifted data. TODO: this is not saved.
-    shifted_pp_two_peaks, shifted_pp_two_peak_locations, shifted_pp_two_histogram, _,\
-        shifted_pp_two_spatial_bins = histogram_generation.make_single_motion_histogram(
+    (
+        shifted_pp_two_peaks,
+        shifted_pp_two_peak_locations,
+        shifted_pp_two_histogram,
+        _,
+        shifted_pp_two_spatial_bins,
+    ) = histogram_generation.make_single_motion_histogram(
         shifted_pp_two_rec,
     )
 
@@ -107,6 +116,7 @@ def align_to_first_session(sub_path, first_session, second_session):
     plt.close(fig)
 
 
+# TODO: this is almost exactly the same as ephysdata.utils.plot_list_of_recordings()
 def save_data_plots(sub_path, ses):  # TODO: MOVE TO UTILS
 
     ses_path = sub_path / ses
@@ -129,8 +139,10 @@ def save_data_plots(sub_path, ses):  # TODO: MOVE TO UTILS
             # not quite the end so bin doesn't go over edge
             # TODO: assumes recording is at least 100 seconds long.
             quarter_times = np.quantile(all_times, (0, 0.25, 0.5, 0.75, 0.95))
-            start_times = [np.random.uniform(quarter_times[i], quarter_times[i + 1]) for
-                           i in range(len(quarter_times) - 1)]
+            start_times = [
+                np.random.uniform(quarter_times[i], quarter_times[i + 1])
+                for i in range(len(quarter_times) - 1)
+            ]
 
             bin_sizes = (0.05, 1, 5)
 
@@ -147,6 +159,7 @@ def save_data_plots(sub_path, ses):  # TODO: MOVE TO UTILS
                     format_start = f"{start:0.2f}"
                     ax.set_title(f"{ses}\n start time: {format_start}, bin size: {bin}")
                     fig.savefig(
-                        recording_path.parent / f"shank-{shank_id}_start-{format_start}_bin-{bin}.png")
+                        recording_path.parent
+                        / f"shank-{shank_id}_start-{format_start}_bin-{bin}.png"
+                    )
                     plt.close(fig)
-

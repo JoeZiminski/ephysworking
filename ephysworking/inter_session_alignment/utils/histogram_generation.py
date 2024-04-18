@@ -1,23 +1,27 @@
-from spikeinterface.sortingcomponents.peak_detection import detect_peaks
 import calculate_histogram_shift
 import numpy as np
 from spikeinterface.sortingcomponents import motion_estimation
+from spikeinterface.sortingcomponents.peak_detection import detect_peaks
 from spikeinterface.sortingcomponents.peak_localization import localize_peaks
 
 
 def make_single_motion_histogram_per_session(recording, peaks, peak_locations):
     """"""
-    spatial_bins = motion_estimation.get_spatial_bin_edges(recording, direction="y", margin_um=0.0, bin_um=10.0)  # TODO: this defines the histogram binsize
+    spatial_bins = motion_estimation.get_spatial_bin_edges(
+        recording, direction="y", margin_um=0.0, bin_um=10.0
+    )  # TODO: this defines the histogram binsize
 
     # make a 3D histogram
-    motion_histograms, temporal_hist_bin_edges, spatial_hist_bin_edges = \
+    motion_histograms, temporal_hist_bin_edges, spatial_hist_bin_edges = (
         motion_estimation.make_2d_motion_histogram(
-        recording,
-        peaks,
-        peak_locations,
-        direction="y",
-        bin_duration_s=recording.get_times()[-1] + 0.1, # bin_duration_s,  # TODO: could make much larger, will this crash on super long files?
-        spatial_bin_edges=spatial_bins,
+            recording,
+            peaks,
+            peak_locations,
+            direction="y",
+            bin_duration_s=recording.get_times()[-1]
+            + 0.1,  # bin_duration_s,  # TODO: could make much larger, will this crash on super long files?
+            spatial_bin_edges=spatial_bins,
+        )
     )
 
     assert motion_histograms.shape[0] == 1
@@ -27,9 +31,18 @@ def make_single_motion_histogram_per_session(recording, peaks, peak_locations):
 def make_single_motion_histogram(recording):
     """"""
     peaks, peak_locations = get_peaks_and_peak_locations(recording)
-    histogram, temporal_hist_bin_edges, spatial_hist_bin_edges = make_single_motion_histogram_per_session(recording, peaks, peak_locations)
+    histogram, temporal_hist_bin_edges, spatial_hist_bin_edges = (
+        make_single_motion_histogram_per_session(recording, peaks, peak_locations)
+    )
 
-    return peaks, peak_locations, histogram, temporal_hist_bin_edges, spatial_hist_bin_edges
+    return (
+        peaks,
+        peak_locations,
+        histogram,
+        temporal_hist_bin_edges,
+        spatial_hist_bin_edges,
+    )
+
 
 # TODO: this does not handle the same defaults as spikeinterface defaults
 # this is super confusing
@@ -37,12 +50,25 @@ def make_single_motion_histogram(recording):
 def get_peaks_and_peak_locations(recording, job_kwargs=None):
     if not job_kwargs:
         job_kwargs = {}
-    peaks = detect_peaks(recording=recording, method="locally_exclusive", detect_threshold=8.0, **job_kwargs)
-    peak_locations = localize_peaks(recording=recording, peaks=peaks, method="center_of_mass", radius_um=75.0, **job_kwargs)
+    peaks = detect_peaks(
+        recording=recording,
+        method="locally_exclusive",
+        detect_threshold=8.0,
+        **job_kwargs,
+    )
+    peak_locations = localize_peaks(
+        recording=recording,
+        peaks=peaks,
+        method="center_of_mass",
+        radius_um=75.0,
+        **job_kwargs,
+    )
     return peaks, peak_locations
 
 
-def calculate_scaled_histogram_shift(recording_1, recording_2, histogram_1, histogram_2):
+def calculate_scaled_histogram_shift(
+    recording_1, recording_2, histogram_1, histogram_2
+):
     """"""
     assert histogram_1.size == histogram_2.size
 

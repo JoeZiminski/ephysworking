@@ -1,16 +1,12 @@
-import spikeinterface as si
-import matplotlib.pyplot as plt
-from spikeinterface.sortingcomponents.peak_detection import detect_peaks
-from spikeinterface.sortingcomponents.peak_selection import select_peaks
-from spikeinterface.sortingcomponents.peak_localization import localize_peaks
-from spikeinterface.sortingcomponents.motion_estimation import estimate_motion
-from spikeinterface.sortingcomponents.motion_interpolation import interpolate_motion
-
-import numpy as np
 from pathlib import Path
-from spikeinterface.sortingcomponents import motion_estimation
-import calculate_histogram_shift
+
 import histogram_generation
+import matplotlib.pyplot as plt
+import numpy as np
+import spikeinterface as si
+from spikeinterface.sortingcomponents.motion_interpolation import (
+    interpolate_motion,
+)
 
 # TODO: need to do a line-by-line check of entire script!!
 # TODO: motion correction only supported for single-segment recordings
@@ -29,7 +25,9 @@ if __name__ == "__main__":
     if PLATFORM == "w":
         base_path = Path(r"X:\neuroinformatics\scratch\jziminski\1119617\derivatives")
     elif PLATFORM == "l":
-        base_path = Path("/ceph/neuroinformatics/neuroinformatics/scratch/jziminski/1119617/derivatives")
+        base_path = Path(
+            "/ceph/neuroinformatics/neuroinformatics/scratch/jziminski/1119617/derivatives"
+        )
 
     first_session = "1119617_LSE1_shank12_g0"
     second_session = "1119617_pretest1_shank12_g0"
@@ -46,14 +44,16 @@ if __name__ == "__main__":
     pp_one_histogram = np.load(pp_one_npy_path / "histogram.npy")
     pp_one_spatial_bins = np.load(pp_one_npy_path / "spatial_bins.npy")
 
-    pp_two_histogram =  np.load(pp_two_npy_path / "histogram.npy")
+    pp_two_histogram = np.load(pp_two_npy_path / "histogram.npy")
     pp_two_temporal_bins = np.load(pp_two_npy_path / "temporal_bins.npy")
     pp_two_spatial_bins = np.load(pp_two_npy_path / "spatial_bins.npy")
 
     assert np.array_equal(pp_one_spatial_bins, pp_two_spatial_bins)
 
     # Calculate shift from pp_two to pp_one
-    scaled_shift, y_pos = histogram_generation.calculate_scaled_histogram_shift(pp_one_rec, pp_two_rec, pp_one_histogram, pp_two_histogram)
+    scaled_shift, y_pos = histogram_generation.calculate_scaled_histogram_shift(
+        pp_one_rec, pp_two_rec, pp_one_histogram, pp_two_histogram
+    )
 
     # Shift the second session
     shifted_output_path = Path(pp_two_path) / "shifted_data" / "si_recording"
@@ -61,17 +61,25 @@ if __name__ == "__main__":
     pp_two_motion = np.empty((pp_two_temporal_bins.size, pp_two_spatial_bins.size))
     pp_two_motion[:, :] = scaled_shift
 
-    shifted_pp_two_rec = interpolate_motion(recording=pp_two_rec,
-                                       motion=-pp_two_motion,  # TODO: double check sign convention
-                                       temporal_bins=pp_two_temporal_bins,
-                                       spatial_bins=pp_two_spatial_bins,
-                                       border_mode="force_zeros", # remove_channels  force_zeros
-                                       spatial_interpolation_method="kriging",
-                                       sigma_um=30.0)
+    shifted_pp_two_rec = interpolate_motion(
+        recording=pp_two_rec,
+        motion=-pp_two_motion,  # TODO: double check sign convention
+        temporal_bins=pp_two_temporal_bins,
+        spatial_bins=pp_two_spatial_bins,
+        border_mode="force_zeros",  # remove_channels  force_zeros
+        spatial_interpolation_method="kriging",
+        sigma_um=30.0,
+    )
     shifted_pp_two_rec.save(folder=shifted_output_path)
 
     #  TODO: use the function from other script, move saving apaprantus into the function and allow switch.
-    shifted_pp_two_peaks, shifted_pp_two_peak_locations, shifted_pp_two_histogram, _, shifted_pp_two_spatial_bins = histogram_generation.make_single_motion_histogram(
+    (
+        shifted_pp_two_peaks,
+        shifted_pp_two_peak_locations,
+        shifted_pp_two_histogram,
+        _,
+        shifted_pp_two_spatial_bins,
+    ) = histogram_generation.make_single_motion_histogram(
         shifted_pp_two_rec,
     )
 
