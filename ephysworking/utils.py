@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import spikeinterface.widgets as si_widgets
-
+import probeinterface.plotting as pi_plotting
 
 def save_plot(
     x, y, xlabel, ylabel, output_filepath
@@ -17,7 +17,7 @@ def save_plot(
 
 
 def plot_list_of_recordings(
-    output_path, ses_name, recording_times, names_list, recording_list, mode="map"
+    output_path, ses_name, recording_times, names_list, recording_list, mode="map", clim=None,
 ):
     """
     """
@@ -47,6 +47,7 @@ def plot_list_of_recordings(
                     ax=ax,
                     mode=mode,
                     show_channel_ids=True,
+                    clim=clim,
                 )
                 format_start = f"{start:0.2f}"
                 ax.set_title(
@@ -56,6 +57,17 @@ def plot_list_of_recordings(
                     output_path / f"name-{name}_start-{format_start}_bin-{bin}.png"
                 )
                 plt.close(fig)
+
+
+def save_probe_plot(probe, output_path, with_contact_id=False, with_device_index=False):
+    """
+    """
+    fig, ax = plt.subplots()
+    pi_plotting.plot_probe(probe, ax=ax, with_contact_id=with_contact_id, with_device_index=with_device_index)
+    fig.savefig(
+        output_path / f"probe_plot.png"
+    )
+
 
 
 def full_plot_motion(output_path, motion_info):

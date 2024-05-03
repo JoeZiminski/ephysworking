@@ -33,12 +33,12 @@ else:
 
 # Set subject / session information
 sub = "DO79"
-ses = "240109_001"   # e.g. "240404_001" # "240109_001"
+ses = "240404_001"   # e.g. "240404_001" # "240109_001"
 probe_idx = 0        # 0 or 1
-shank_idx = 1        # (0-3 probe 1, 4-7 probe 2)
+shank_idx = 2        # (0-3 probe 1, 4-7 probe 2)
 save_plots = False   # save to folder is True, otherwise display now with matplotlib.
 show_probe_plot = False
-plot_mode = "map"    # "map" or "line"
+plot_mode = "line"    # "map" or "line"
 
 get_ses_path = lambda toplevel: base_path / toplevel / sub / ses
 
@@ -89,8 +89,8 @@ if save_plots:
         mode=plot_mode,
     )
 else:
-    start_time = 250
-    stop_time = 250.2
+    start_time = 100
+    stop_time = 100.2
 
     si_widgets.plot_traces(
         cmr_rec,
