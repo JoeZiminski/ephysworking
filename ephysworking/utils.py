@@ -1,13 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import spikeinterface.widgets as si_widgets
 import probeinterface.plotting as pi_plotting
+import spikeinterface.widgets as si_widgets
 
-def save_plot(
-    x, y, xlabel, ylabel, output_filepath
-):
-    """
-    """
+
+def save_plot(x, y, xlabel, ylabel, output_filepath):
+    """ """
     fig, ax = plt.subplots()
     ax.plot(x, y)
     ax.set_xlabel(xlabel)
@@ -17,10 +15,15 @@ def save_plot(
 
 
 def plot_list_of_recordings(
-    output_path, ses_name, recording_times, names_list, recording_list, mode="map", clim=None,
+    output_path,
+    ses_name,
+    recording_times,
+    names_list,
+    recording_list,
+    mode="map",
+    clim=None,
 ):
-    """
-    """
+    """ """
     output_path.mkdir(exist_ok=True, parents=True)
 
     quarter_times = np.quantile(
@@ -54,25 +57,28 @@ def plot_list_of_recordings(
                     f"{ses_name}\n start time: {format_start}, bin size: {bin}"
                 )
                 fig.savefig(
-                    output_path / f"name-{name}_start-{format_start}_bin-{bin}.png"
+                    output_path
+                    / f"name-{name}_start-{format_start}_bin-{bin}.png"
                 )
                 plt.close(fig)
 
 
-def save_probe_plot(probe, output_path, with_contact_id=False, with_device_index=False):
-    """
-    """
+def save_probe_plot(
+    probe, output_path, with_contact_id=False, with_device_index=False
+):
+    """ """
     fig, ax = plt.subplots()
-    pi_plotting.plot_probe(probe, ax=ax, with_contact_id=with_contact_id, with_device_index=with_device_index)
-    fig.savefig(
-        output_path / f"probe_plot.png"
+    pi_plotting.plot_probe(
+        probe,
+        ax=ax,
+        with_contact_id=with_contact_id,
+        with_device_index=with_device_index,
     )
-
+    fig.savefig(output_path / "probe_plot.png")
 
 
 def full_plot_motion(output_path, motion_info):
-    """
-    """
+    """ """
     save_plot(
         motion_info["temporal_bins"],
         motion_info["motion"],

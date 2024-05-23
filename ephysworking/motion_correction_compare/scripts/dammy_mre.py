@@ -9,19 +9,18 @@ Pictures are output to
 /ceph/neuroinformatics/neuroinformatics/scratch/jziminski/ephys/dammy/deriatives/...
 """
 
-from pathlib import Path
 import platform
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import spikeinterface.extractors as si_extractors
 import spikeinterface.preprocessing as si_preprocessing
 import spikeinterface.widgets as si_widgets
-from spikeinterface.sorters import Kilosort2_5Sorter
-import probeinterface
-from ephysworking.motion_correction_compare.utils import gen_probe_group
-from ephysworking.utils import plot_list_of_recordings
+from probeinterface.plotting import plot_probe_group
 
-from probeinterface.plotting import plot_probe, plot_probe_group
+from ephysworking.motion_correction_compare.motion_utils import gen_probe_group
+from ephysworking.utils import plot_list_of_recordings
 
 if platform.system() == "Windows":
     base_path = Path(r"X:\neuroinformatics\scratch\jziminski\ephys\dammy")
@@ -33,27 +32,35 @@ else:
 
 # Set subject / session information
 sub = "DO79"
-ses = "240404_001"   # e.g. "240404_001" # "240109_001"
-probe_idx = 0        # 0 or 1
-shank_idx = 2        # (0-3 probe 1, 4-7 probe 2)
-save_plots = False   # save to folder is True, otherwise display now with matplotlib.
+ses = "240404_001"  # e.g. "240404_001" # "240109_001"
+probe_idx = 0  # 0 or 1
+shank_idx = 2  # (0-3 probe 1, 4-7 probe 2)
+save_plots = (
+    False  # save to folder is True, otherwise display now with matplotlib.
+)
 show_probe_plot = False
-plot_mode = "line"    # "map" or "line"
+plot_mode = "line"  # "map" or "line"
 
 get_ses_path = lambda toplevel: base_path / toplevel / sub / ses
 
 
 # Load the raw data
-recording_path = list(get_ses_path("rawdata").glob("**/Record Node 101/experiment*/recording*"))
+recording_path = list(
+    get_ses_path("rawdata").glob("**/Record Node 101/experiment*/recording*")
+)
 
-assert len(recording_path) == 1, f"{sub} {ses} has unexpected number of recordings."
+assert (
+    len(recording_path) == 1
+), f"{sub} {ses} has unexpected number of recordings."
 
 raw_rec_noprobe = si_extractors.read_openephys(recording_path[0].as_posix())
 
 probes = gen_probe_group()  # vendored from Dammy's code
 
 if show_probe_plot and not save_plots:
-    plot_probe_group(probes, with_contact_id=True)  # with_contact_id with_device_index
+    plot_probe_group(
+        probes, with_contact_id=True
+    )  # with_contact_id with_device_index
     plt.show()
 
 
@@ -70,7 +77,9 @@ raw_rec = raw_rec_one_probe.split_by("group")[shank_idx]
 
 
 # Preprocess in SI
-filtered_rec = si_preprocessing.bandpass_filter(raw_rec, freq_min=300, freq_max=6000)
+filtered_rec = si_preprocessing.bandpass_filter(
+    raw_rec, freq_min=300, freq_max=6000
+)
 cmr_rec = si_preprocessing.common_reference(filtered_rec, operator="median")
 
 

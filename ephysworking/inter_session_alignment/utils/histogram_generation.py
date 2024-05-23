@@ -25,14 +25,20 @@ def make_single_motion_histogram_per_session(recording, peaks, peak_locations):
     )
 
     assert motion_histograms.shape[0] == 1
-    return motion_histograms[0, :], temporal_hist_bin_edges, spatial_hist_bin_edges
+    return (
+        motion_histograms[0, :],
+        temporal_hist_bin_edges,
+        spatial_hist_bin_edges,
+    )
 
 
 def make_single_motion_histogram(recording):
     """"""
     peaks, peak_locations = get_peaks_and_peak_locations(recording)
     histogram, temporal_hist_bin_edges, spatial_hist_bin_edges = (
-        make_single_motion_histogram_per_session(recording, peaks, peak_locations)
+        make_single_motion_histogram_per_session(
+            recording, peaks, peak_locations
+        )
     )
 
     return (
@@ -79,7 +85,9 @@ def calculate_scaled_histogram_shift(
     assert np.array_equal(pos_1, pos_2)
     assert y_um_1 == y_um_2
 
-    shift_2_to_1 = calculate_histogram_shift.calculate_shift(histogram_1, histogram_2)
+    shift_2_to_1 = calculate_histogram_shift.calculate_shift(
+        histogram_1, histogram_2
+    )
 
     # TODO: need to adjust this scale if changing num bins
     #  in the histogram!!!?? NOT ANYMORE DONT THINK

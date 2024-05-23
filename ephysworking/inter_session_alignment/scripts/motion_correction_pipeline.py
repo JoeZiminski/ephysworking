@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import pipeline_steps
+from ephydworking.inter_session_alignment.utils import pipeline_steps
 
 PLATFORM = "l"  # "w" or "l"
 if PLATFORM == "w":

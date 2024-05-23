@@ -37,7 +37,9 @@ raw_recording = read_spikeglx(data_path / ses)
 
 # Run the preprocessing steps
 shifted_recording = phase_shift(raw_recording)
-filtered_recording = bandpass_filter(shifted_recording, freq_min=300, freq_max=6000)
+filtered_recording = bandpass_filter(
+    shifted_recording, freq_min=300, freq_max=6000
+)
 referenced_recording = common_reference(
     filtered_recording, reference="global", operator="median"
 )

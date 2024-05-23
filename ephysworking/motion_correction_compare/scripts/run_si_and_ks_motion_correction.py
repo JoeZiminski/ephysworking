@@ -9,9 +9,8 @@ from spikeinterface import preprocessing as si_preprocessing
 from spikeinterface import sorters as si_sorters
 from spikeinterface.core import BinaryRecordingExtractor
 
-from ephysworking.motion_correction_compare.utils import gen_probe_group
+from ephysworking.motion_correction_compare.motion_utils import gen_probe_group
 from ephysworking.utils import full_plot_motion, plot_list_of_recordings
-
 
 # Setup
 if platform.system() == "Windows":
@@ -42,9 +41,13 @@ get_ses_path = lambda toplevel: base_path / toplevel / sub / ses
 
 recording_path = list(get_ses_path("rawdata").glob("**/Record Node 101*"))
 
-assert len(recording_path) == 1, f"{sub} {ses} has unexpected number of recordings."
+assert (
+    len(recording_path) == 1
+), f"{sub} {ses} has unexpected number of recordings."
 
-raw_rec_ = si_extractors.read_openephys(recording_path[0].as_posix(), block_index=0)
+raw_rec_ = si_extractors.read_openephys(
+    recording_path[0].as_posix(), block_index=0
+)
 probes = gen_probe_group()
 
 raw_rec_ = raw_rec_.set_probegroup(probes)
@@ -55,7 +58,9 @@ raw_rec = raw_rec.split_by("group")[1]  # split by shank, take one arbitrarily
 
 
 # preprocess in SI
-filtered_rec = si_preprocessing.bandpass_filter(raw_rec, freq_min=300, freq_max=6000)
+filtered_rec = si_preprocessing.bandpass_filter(
+    raw_rec, freq_min=300, freq_max=6000
+)
 cmr_rec = si_preprocessing.common_reference(filtered_rec, operator="median")
 
 
@@ -64,7 +69,9 @@ motcor_path = get_ses_path("derivatives") / "si_motion_corr"
 
 if run_full:
     motion_correced_rec = si_preprocessing.correct_motion(
-        recording=cmr_rec, preset="kilosort_like", folder=motcor_path / "motion_outputs"
+        recording=cmr_rec,
+        preset="kilosort_like",
+        folder=motcor_path / "motion_outputs",
     )
     motion_correced_rec.save(folder=motcor_path / "si_recording")
 
@@ -86,14 +93,13 @@ if run_full:
         recording=cmr_rec,
         car=False,
         freq_min=150,
-        output_folder=get_ses_path("derivatives") / sorter,  # TODO: output_folder
+        output_folder=get_ses_path("derivatives")
+        / sorter,  # TODO: output_folder
     )
 
 
-# Load kilosort's temp_wh.dat that inclueds the KS-preprocessed data.
-sorter_output_path = (
-    get_ses_path("derivatives") / sorter / "sorter_output"
-)
+# Load kilosort's temp_wh.dat that includes the KS-preprocessed data.
+sorter_output_path = get_ses_path("derivatives") / sorter / "sorter_output"
 
 tmp = sorter_output_path / "temp_wh.dat"
 

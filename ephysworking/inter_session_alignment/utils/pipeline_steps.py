@@ -1,6 +1,7 @@
 """
 
 """
+
 from pathlib import Path
 
 import histogram_generation
@@ -55,8 +56,12 @@ def align_to_first_session(sub_path, first_session, second_session):
     pp_two_npy_path = Path(pp_two_path) / "motion_npy_files"
 
     # Load histogram information.
-    pp_one_rec = si.load_extractor(pp_one_path / "preprocessing" / "si_recording")
-    pp_two_rec = si.load_extractor(pp_two_path / "preprocessing" / "si_recording")
+    pp_one_rec = si.load_extractor(
+        pp_one_path / "preprocessing" / "si_recording"
+    )
+    pp_two_rec = si.load_extractor(
+        pp_two_path / "preprocessing" / "si_recording"
+    )
 
     pp_one_histogram = np.load(pp_one_npy_path / "histogram.npy")
     pp_one_spatial_bins = np.load(pp_one_npy_path / "spatial_bins.npy")
@@ -68,8 +73,10 @@ def align_to_first_session(sub_path, first_session, second_session):
     assert np.array_equal(pp_one_spatial_bins, pp_two_spatial_bins)
 
     # Calculate shift from pp_two to pp_one
-    scaled_shift, y_pos = histogram_generation.calculate_scaled_histogram_shift(
-        pp_one_rec, pp_two_rec, pp_one_histogram, pp_two_histogram
+    scaled_shift, y_pos = (
+        histogram_generation.calculate_scaled_histogram_shift(
+            pp_one_rec, pp_two_rec, pp_one_histogram, pp_two_histogram
+        )
     )
 
     # Shift the second session
@@ -77,7 +84,9 @@ def align_to_first_session(sub_path, first_session, second_session):
     # put in the same place.
     shifted_output_path = Path(pp_two_path) / "shifted_data" / "si_recording"
 
-    pp_two_motion = np.empty((pp_two_temporal_bins.size, pp_two_spatial_bins.size))
+    pp_two_motion = np.empty(
+        (pp_two_temporal_bins.size, pp_two_spatial_bins.size)
+    )
     pp_two_motion[:, :] = scaled_shift
 
     # TODO: double check sign convention
@@ -111,7 +120,9 @@ def align_to_first_session(sub_path, first_session, second_session):
     ax.plot(shifted_pp_two_spatial_bins[:-1], shifted_pp_two_histogram)
     ax.set_xlabel("Contact Position (μm)")
     ax.set_ylabel("Frequency")
-    ax.figure.legend([first_session, second_session, f"Shifted: {second_session}"])
+    ax.figure.legend(
+        [first_session, second_session, f"Shifted: {second_session}"]
+    )
     fig.savefig(Path(pp_two_path) / "shifted_motion_histogram.png")
     plt.close(fig)
 
@@ -157,7 +168,9 @@ def save_data_plots(sub_path, ses):  # TODO: MOVE TO UTILS
                         ax=ax,
                     )
                     format_start = f"{start:0.2f}"
-                    ax.set_title(f"{ses}\n start time: {format_start}, bin size: {bin}")
+                    ax.set_title(
+                        f"{ses}\n start time: {format_start}, bin size: {bin}"
+                    )
                     fig.savefig(
                         recording_path.parent
                         / f"shank-{shank_id}_start-{format_start}_bin-{bin}.png"
