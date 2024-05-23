@@ -34,11 +34,11 @@ else:
 
 # Set subject / session information
 sub = "DO79"
-ses = "240404_001"  # e.g. "240404_001" # "240109_001"
+ses = "240109_001"  # e.g. "240404_001" # "240109_001"
 probe_idx = 0  # 0 or 1
-shank_idx = 2  # (0-3 probe 1, 4-7 probe 2)
+shank_idx = 0  # (0-3 probe 1, 4-7 probe 2)
 save_plots = (
-    True  # save to folder is True, otherwise display now with matplotlib.
+    False  # save to folder is True, otherwise display now with matplotlib.
 )
 show_probe_plot = False
 plot_mode = "line"  # "map" or "line"
@@ -81,7 +81,7 @@ raw_rec = raw_rec_one_probe.split_by("group")[shank_idx]
 filtered_rec = si_preprocessing.bandpass_filter(
     raw_rec, freq_min=300, freq_max=6000
 )
-cmr_rec = si_preprocessing.common_reference(filtered_rec, operator="median")
+cmr_rec = filtered_rec #  si_preprocessing.common_reference(filtered_rec, operator="median")
 
 
 # Plot all outputs for visual comparison.
