@@ -1,0 +1,29 @@
+name: version_release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: neuroinformatics-unit/actions/lint@v2
+
+  build_sdist_wheels:
+    name: Build source distribution
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v2
+
+
+  upload_all:
+    name: Publish build distributions
+    needs: [build_sdist_wheels]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: neuroinformatics-unit/actions/upload_pypi@v2
+      with:
+        secret-pypi-key: ${{ secrets.TWINE_API_KEY }}
