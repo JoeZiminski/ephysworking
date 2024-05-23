@@ -23,10 +23,12 @@ from ephysworking.motion_correction_compare.motion_utils import gen_probe_group
 from ephysworking.utils import plot_list_of_recordings
 
 if platform.system() == "Windows":
-    base_path = Path(r"X:\neuroinformatics\scratch\jziminski\ephys\dammy")
+    base_path = Path(
+        r"Y:\Dammy\jziminski_temp"
+    )
 else:
     base_path = Path(
-        r"/ceph/neuroinformatics/neuroinformatics/scratch/jziminski/ephys/dammy"
+        r"/ceph/akrami/Dammy/jziminski_temp/"
     )
 
 
@@ -36,13 +38,12 @@ ses = "240404_001"  # e.g. "240404_001" # "240109_001"
 probe_idx = 0  # 0 or 1
 shank_idx = 2  # (0-3 probe 1, 4-7 probe 2)
 save_plots = (
-    False  # save to folder is True, otherwise display now with matplotlib.
+    True  # save to folder is True, otherwise display now with matplotlib.
 )
 show_probe_plot = False
 plot_mode = "line"  # "map" or "line"
 
 get_ses_path = lambda toplevel: base_path / toplevel / sub / ses
-
 
 # Load the raw data
 recording_path = list(
