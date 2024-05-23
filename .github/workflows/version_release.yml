@@ -13,6 +13,7 @@ jobs:
 
   build_sdist_wheels:
     name: Build source distribution
+    needs: [linting]
     if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
