@@ -40,7 +40,7 @@ for row, all_rec_nums in enumerate(((10, 11, 12), (50, 51, 52), (100, 101, 102),
     for col, rec_num in enumerate(all_rec_nums):
 
         filename = f"NeuropixelsV2Beta_ProbeA_AmplifierData_{rec_num}.bin"
-        recording = si.read_binary(data_base_path /filename,
+        recording = si.read_binary(data_base_path / filename,
                        sampling_frequency=fs,
                        dtype=np.int16,
                        num_channels=384)
@@ -50,8 +50,6 @@ for row, all_rec_nums in enumerate(((10, 11, 12), (50, 51, 52), (100, 101, 102),
         recording.set_probe(probe)
         recording.set_channel_locations(probe.contact_positions)
 
-        all_recordings.append(recording)
-
         # recording = si.phase_shift(recording) TODO: need inter_sample_shift from channel map
         recording = si.bandpass_filter(recording, freq_min=300, freq_max=6000)
 
@@ -60,6 +58,8 @@ for row, all_rec_nums in enumerate(((10, 11, 12), (50, 51, 52), (100, 101, 102),
 
         si.plot_traces(recording, ax=ax[row, col])
         ax[row, col].set_title(f"{rec_num}")
+
+        all_recordings.append(recording)
 
 fig.savefig(data_base_path / 'data-overview.tiff', dpi=600)
 
