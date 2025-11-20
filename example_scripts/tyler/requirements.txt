@@ -1,0 +1,3 @@
+spikeinterface
+probeinterface
+kilosort==4.1.0
